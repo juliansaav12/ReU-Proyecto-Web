@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}ReU | Explorar{% endblock %}
+{% block content %}
+<div class="page-heading">
+    <span class="eyebrow">Comunidad ReU</span>
+    <h1>Explorar publicaciones</h1>
+    <p>Busca objetos perdidos, encontrados, para intercambio o regalo.</p>
+</div>
+
+<form method="get" class="filters">
+    <input type="text" name="q" value="{{ q }}" placeholder="Buscar por nombre, descripción o ubicación">
+    <select name="tipo">
+        <option value="">Todos los tipos</option>
+        <option value="PERDIDO" {% if tipo_actual == "PERDIDO" %}selected{% endif %}>Perdido</option>
+        <option value="ENCONTRADO" {% if tipo_actual == "ENCONTRADO" %}selected{% endif %}>Encontrado</option>
+        <option value="INTERCAMBIO" {% if tipo_actual == "INTERCAMBIO" %}selected{% endif %}>Intercambio</option>
+        <option value="REGALO" {% if tipo_actual == "REGALO" %}selected{% endif %}>Regalo</option>
+    </select>
+    <select name="categoria">
+        <option value="">Todas las categorías</option>
+        {% for c in categorias %}
+            <option value="{{ c.id }}" {% if categoria_actual == c.id|stringformat:"s" %}selected{% endif %}>{{ c.nombre }}</option>
+        {% endfor %}
+    </select>
+    <button class="btn" type="submit">Buscar</button>
+</form>
+
+<div class="cards">
+{% for p in publicaciones %}
+    <article class="object-card">
+        {% if p.imagen %}<img src="{{ p.imagen.url }}" alt="{{ p.titulo }}">{% endif %}
+        <div class="object-body">
+            <span class="tag">{{ p.get_tipo_display }}</span>
+            {% if p.valor_tokens > 0 %}
+            <span class="tag">{{ p.valor_tokens }} tokens</span>
+            {% endif %}
+            <h3>{{ p.titulo }}</h3>
+            <p>{{ p.descripcion|truncatechars:120 }}</p>
+            <small>{{ p.categoria }} · {{ p.ubicacion|default:"Ubicación no indicada" }}</small>
+            <a href="{% url 'detalle' p.pk %}">Ver publicación →</a>
+        </div>
+    </article>
+{% empty %}
+    <div class="empty"><h3>No encontramos publicaciones.</h3><p>Prueba con otros filtros.</p></div>
+{% endfor %}
+</div>
+{% endblock %}

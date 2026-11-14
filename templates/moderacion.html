@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}ReU | Moderación{% endblock %}
+{% block content %}
+<div class="page-heading">
+    <span class="eyebrow">Panel de control</span>
+    <h1>Moderación</h1>
+    <p>Revisa los reportes pendientes y gestiona usuarios.</p>
+</div>
+
+<section class="section">
+    <h2>Reportes pendientes</h2>
+    {% for r in reportes %}
+    <div class="request-card">
+        <div>
+            <strong>{{ r.publicacion.titulo }}</strong>
+            <p>Motivo: {{ r.motivo }}</p>
+            <small>Reportado por {{ r.usuario.nombre }} · Autor: {{ r.publicacion.usuario.nombre }}</small>
+        </div>
+        <div>
+            <a class="btn small secondary" href="{% url 'detalle' r.publicacion.pk %}">Ver</a>
+            <form method="post" action="{% url 'resolver_reporte' r.pk 'cancelar' %}" class="inline-form">
+                {% csrf_token %}
+                <button class="btn small danger" type="submit">Cancelar publicación</button>
+            </form>
+            <form method="post" action="{% url 'resolver_reporte' r.pk 'descartar' %}" class="inline-form">
+                {% csrf_token %}
+                <button class="btn small" type="submit">Descartar</button>
+            </form>
+        </div>
+    </div>
+    {% empty %}
+        <p>No hay reportes pendientes.</p>
+    {% endfor %}
+</section>
+
+<section class="section">
+    <h2>Usuarios registrados</h2>
+    {% for u in usuarios %}
+    <div class="request-card">
+        <div>
+            <strong>{{ u.nombre }}</strong> (@{{ u.username }})
+            <p>{{ u.correo }} · Rol: {{ u.get_rol_display }}</p>
+        </div>
+        <div>
+            <form method="post" action="{% url 'bloquear_usuario' u.pk %}" class="inline-form">
+                {% csrf_token %}
+                {% if u.estado %}
+                    <button class="btn small danger" type="submit">Bloquear</button>
+                {% else %}
+                    <button class="btn small" type="submit">Desbloquear</button>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+    {% empty %}
+        <p>No hay otros usuarios.</p>
+    {% endfor %}
+</section>
+{% endblock %}

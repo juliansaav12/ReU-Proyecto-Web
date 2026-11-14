@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}ReU | Publicar{% endblock %}
+{% block content %}
+<div class="form-card">
+    <span class="eyebrow">ReU</span>
+    <h1>{% if edicion %}Editar publicación{% else %}Publicar un objeto{% endif %}</h1>
+    <p>Completa los datos para que la comunidad pueda encontrarlo.</p>
+
+    <form method="post" enctype="multipart/form-data" class="form-grid">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <label>Ubicación en el mapa de la UIS (opcional, haz clic para marcar el punto)</label>
+        <div class="mapa-caja" id="mapa-caja">
+            <img src="{% static 'img/mapa_uis.webp' %}" alt="Mapa de la universidad" draggable="false">
+            <div class="mapa-pin" id="mapa-pin" style="display: none;"></div>
+        </div>
+        <p id="mapa-texto" style="font-size: 13px; color: #5f675f;"></p>
+        <button class="btn" type="submit">{% if edicion %}Guardar cambios{% else %}Publicar{% endif %}</button>
+    </form>
+    <script>
+        const caja = document.getElementById("mapa-caja");
+        const pin = document.getElementById("mapa-pin");
+        const campoX = document.getElementById("id_coord_x");
+        const campoY = document.getElementById("id_coord_y");
+        const texto = document.getElementById("mapa-texto");
+
+        function mostrarPin(x, y) {
+            pin.style.left = x + "%";
+            pin.style.top = y + "%";
+            pin.style.display = "block";
+            texto.textContent = "Punto marcado en el mapa.";
+        }
+
+        if (campoX.value && campoY.value) {
+            mostrarPin(campoX.value, campoY.value);
+        }
+
+        caja.addEventListener("click", function (evento) {
+            const rect = caja.getBoundingClientRect();
+            const x = ((evento.clientX - rect.left) / rect.width) * 100;
+            const y = ((evento.clientY - rect.top) / rect.height) * 100;
+
+            campoX.value = x.toFixed(2);
+            campoY.value = y.toFixed(2);
+            mostrarPin(campoX.value, campoY.value);
+        });
+    </script>
+</div>
+{% endblock %}

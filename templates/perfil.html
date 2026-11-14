@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}ReU | Mi perfil{% endblock %}
+{% block content %}
+<div class="page-heading">
+    <span class="eyebrow">Mi cuenta</span>
+    <h1>{{ user.nombre }}</h1>
+    <p>{{ user.correo }}</p>
+    <p><strong>Mis tokens:</strong> {{ user.tokens }}</p>
+    {% if promedio %}<p><strong>Reputación:</strong> {{ promedio|floatformat:1 }}/5</p>{% endif %}
+</div>
+
+<section class="section">
+    <div class="section-header"><h2>Mis publicaciones</h2><a href="{% url 'publicar' %}">+ Publicar</a></div>
+    <div class="cards">
+    {% for p in mis_publicaciones %}
+        <article class="object-card">
+            {% if p.imagen %}<img src="{{ p.imagen.url }}" alt="{{ p.titulo }}">{% endif %}
+            <div class="object-body">
+                <span class="tag">{{ p.get_tipo_display }}</span>
+                <h3>{{ p.titulo }}</h3>
+                <p>{{ p.get_estado_publicacion_display }}</p>
+                <a href="{% url 'detalle' p.pk %}">Ver →</a>
+            </div>
+        </article>
+    {% empty %}<p>No tienes publicaciones todavía.</p>{% endfor %}
+    </div>
+</section>
+
+<section class="section">
+<h2>Solicitudes recibidas</h2>
+{% for s in solicitudes_recibidas %}
+<div class="request-card">
+    <div><strong>{{ s.publicacion.titulo }}</strong><p>{{ s.usuario_solicitante.nombre }} · {{ s.get_tipo_solicitud_display }}</p><p>{{ s.mensaje }}</p></div>
+    <div>
+        <span class="tag">{{ s.get_estado_display }}</span>
+        {% if s.estado == "PENDIENTE" %}
+            <a class="btn small" href="{% url 'gestionar_solicitud' s.pk 'aceptar' %}">Aceptar</a>
+            <a class="btn small danger" href="{% url 'gestionar_solicitud' s.pk 'rechazar' %}">Rechazar</a>
+        {% elif s.estado == "ACEPTADA" %}
+            <a class="btn small" href="{% url 'gestionar_solicitud' s.pk 'completar' %}">Marcar completar</a>
+        {% elif s.estado == "COMPLETADA" %}
+            <a class="btn small secondary" href="{% url 'calificar' s.pk %}">Calificar</a>
+        {% endif %}
+    </div>
+</div>
+{% empty %}<p>No tienes solicitudes recibidas.</p>{% endfor %}
+</section>
+
+<section class="section">
+<h2>Solicitudes enviadas</h2>
+{% for s in solicitudes_enviadas %}
+<div class="request-card">
+    <div><strong>{{ s.publicacion.titulo }}</strong><p>{{ s.publicacion.usuario.nombre }} · {{ s.get_tipo_solicitud_display }}</p></div>
+    <div>
+        <span class="tag">{{ s.get_estado_display }}</span>
+        {% if s.estado == "COMPLETADA" %}<a class="btn small secondary" href="{% url 'calificar' s.pk %}">Calificar</a>{% endif %}
+    </div>
+</div>
+{% empty %}<p>No has enviado solicitudes.</p>{% endfor %}
+</section>
+{% endblock %}

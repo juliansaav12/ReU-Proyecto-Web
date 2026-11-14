@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}ReU | Inicio{% endblock %}
+{% block content %}
+<section class="hero">
+    <div>
+        <span class="eyebrow">Comunidad universitaria</span>
+        <h1>Reencuentra.<br>Reutiliza.<br>Intercambia.</h1>
+        <p>Una plataforma para recuperar objetos perdidos y dar una segunda oportunidad a lo que ya no utilizas.</p>
+        <div class="actions">
+            <a class="btn" href="{% url 'explorar' %}">Explorar publicaciones</a>
+            {% if user.is_authenticated %}
+                <a class="btn secondary" href="{% url 'publicar' %}">Publicar un objeto</a>
+            {% else %}
+                <a class="btn secondary" href="{% url 'registro' %}">Crear cuenta</a>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <h2>¿Qué puedes hacer?</h2>
+    <div class="grid-4">
+        <article class="card"><h3>🔎 Reencuentra</h3><p>Publica o busca objetos perdidos y encontrados dentro de la universidad.</p></article>
+        <article class="card"><h3>♻️ Reutiliza</h3><p>Encuentra objetos que otras personas ya no necesitan.</p></article>
+        <article class="card"><h3>🔄 Intercambia</h3><p>Propón un intercambio con otros estudiantes.</p></article>
+        <article class="card"><h3>🎁 Regala</h3><p>Entrega objetos que todavía pueden ser útiles para alguien más.</p></article>
+    </div>
+</section>
+
+<section class="stats">
+    <div><strong>{{ recuperados }}</strong><span>recuperados</span></div>
+    <div><strong>{{ intercambios }}</strong><span>intercambios</span></div>
+    <div><strong>{{ regalos }}</strong><span>regalos</span></div>
+    <div><strong>{{ reutilizados }}</strong><span>reutilizados</span></div>
+</section>
+
+<section class="section">
+    <div class="section-header">
+        <h2>Publicaciones recientes</h2>
+        <a href="{% url 'explorar' %}">Ver todas →</a>
+    </div>
+    <div class="cards">
+        {% for p in ultimas %}
+        <article class="object-card">
+            {% if p.imagen %}<img src="{{ p.imagen.url }}" alt="{{ p.titulo }}">{% endif %}
+            <div class="object-body">
+                <span class="tag">{{ p.get_tipo_display }}</span>
+                <h3>{{ p.titulo }}</h3>
+                <p>{{ p.descripcion|truncatechars:100 }}</p>
+                <a href="{% url 'detalle' p.pk %}">Ver detalle</a>
+            </div>
+        </article>
+        {% empty %}
+            <p>Aún no hay publicaciones activas.</p>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

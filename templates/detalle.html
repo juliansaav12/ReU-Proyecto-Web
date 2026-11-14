@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}ReU | {{ publicacion.titulo }}{% endblock %}
+{% block content %}
+<div class="detail">
+    <div class="detail-image">
+        {% if publicacion.imagen %}
+            <img src="{{ publicacion.imagen.url }}" alt="{{ publicacion.titulo }}">
+        {% else %}
+            <div class="image-placeholder">Sin imagen</div>
+        {% endif %}
+    </div>
+    <div class="detail-body">
+        <span class="tag">{{ publicacion.get_tipo_display }}</span>
+        {% if publicacion.valor_tokens > 0 %}
+        <span class="tag">{{ publicacion.valor_tokens }} tokens</span>
+        {% endif %}
+        <h1>{{ publicacion.titulo }}</h1>
+        <p>{{ publicacion.descripcion }}</p>
+        <dl>
+            <dt>Categoría</dt><dd>{{ publicacion.categoria }}</dd>
+            <dt>Ubicación</dt><dd>{{ publicacion.ubicacion|default:"No indicada" }}</dd>
+            <dt>Estado</dt><dd>{{ publicacion.get_estado_publicacion_display }}</dd>
+            {% if publicacion.estado_objeto %}<dt>Estado del objeto</dt><dd>{{ publicacion.get_estado_objeto_display }}</dd>{% endif %}
+            <dt>Publicado por</dt><dd>{{ publicacion.usuario.nombre }}</dd>
+        </dl>
+
+        {% if publicacion.coord_x is not None and publicacion.coord_y is not None %}
+            <p><strong>Ubicación en el campus:</strong></p>
+            <div class="mapa-caja" style="cursor: default;">
+                <img src="{% static 'img/mapa_uis.webp' %}" alt="Mapa de la universidad">
+                <div class="mapa-pin" id="pin-detalle" data-x="{{ publicacion.coord_x|stringformat:'.2f' }}" data-y="{{ publicacion.coord_y|stringformat:'.2f' }}"></div>
+            </div>
+        {% endif %}
+
+        {% if promedio %}
+            <p><strong>Calificación del usuario:</strong> {{ promedio|floatformat:1 }}/5</p>
+        {% endif %}
+
+        {% if user.is_authenticated and user != publicacion.usuario and publicacion.estado_publicacion == "ACTIVA" %}
+        <form method="post" action="{% url 'solicitar' publicacion.pk %}" class="form-card compact">
+            {% csrf_token %}
+            <h3>Enviar solicitud</h3>
+            {{ solicitud_form.as_p }}
+            <button class="btn" type="submit">Enviar solicitud</button>
+        </form>
+        {% endif %}
+
+        {% if user == publicacion.usuario or user.is_staff or user.rol == "MODERADOR" %}
+            <div class="actions">
+                <a class="btn secondary" href="{% url 'editar_publicacion' publicacion.pk %}">Editar</a>
+                <a class="btn danger" href="{% url 'eliminar_publicacion' publicacion.pk %}">Eliminar</a>
+            </div>
+        {% endif %}
+
+        {% if user.is_authenticated and user != publicacion.usuario %}
+        <form method="post" action="{% url 'reportar' publicacion.pk %}" class="form-card compact">
+            {% csrf_token %}
+            <h3>Reportar publicación</h3>
+            {{ reporte_form.as_p }}
+            <button class="btn danger small" type="submit">Enviar reporte</button>
+        </form>
+        {% endif %}
+    </div>
+</div>
+<script>
+    const pinDetalle = document.getElementById("pin-detalle");
+    if (pinDetalle) {
+        pinDetalle.style.left = pinDetalle.dataset.x + "%";
+        pinDetalle.style.top = pinDetalle.dataset.y + "%";
+    }
+</script>
+{% endblock %}

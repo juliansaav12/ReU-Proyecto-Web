@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}ReU | Iniciar sesión{% endblock %}
+{% block content %}
+<div class="form-card narrow">
+    <h1>Iniciar sesión</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button class="btn" type="submit">Ingresar</button>
+    </form>
+    <p>¿No tienes cuenta? <a href="{% url 'registro' %}">Regístrate</a>.</p>
+</div>
+{% endblock %}

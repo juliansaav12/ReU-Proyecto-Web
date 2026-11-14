@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}ReU | Calificar{% endblock %}
+{% block content %}
+<div class="form-card">
+    <span class="eyebrow">Interacción completada</span>
+    <h1>Calificar a {{ evaluado.nombre }}</h1>
+    <p>Tu opinión ayuda a construir confianza en la comunidad.</p>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button class="btn" type="submit">Guardar calificación</button>
+    </form>
+</div>
+{% endblock %}
